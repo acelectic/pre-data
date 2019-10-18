@@ -26,11 +26,12 @@ epochs = 10
 batch_size = 1
 
 steps = int(train_size//1)
-steps = 2500
+steps = 10
 print(steps)
 
 cmds = {}
-base_path = os.getcwd() + '/store_models'
+base_path = os.getcwd() + '/store_models/main'
+base_path = os.getcwd() + '/store_models/test'
 
 default_args = {
     'train_file': train_file,
@@ -66,11 +67,11 @@ def create_dir(backbone, path):
 
 
 def optimize_anchor():
-    cmd, args = "python3 optimize_anchors.py '/home/minibear/Desktop/pre-data/pigeon.csv' --no-resize --ratios=5 --image-max-side 700 --image-min-side 700"
+    cmd = "python3 optimize_anchors.py '/home/minibear/Desktop/pre-data/pigeon.csv' --no-resize --ratios=5 --image-max-side 700 --image-min-side 700"
 
 
 def debug():
-    cmd, args = "retinanet-debug --anchors --display-name --annotations --config retina-5r-3s.ini csv train_neg_0.85-1885-332-2217.csv classes"
+    cmd = "retinanet-debug --anchors --display-name --annotations --config retina-5r-3s.ini csv train_neg_0.85-1885-332-2217.csv classes"
 
 
 def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
@@ -183,7 +184,7 @@ cmds['4'] = {'name': 'anchor_3r', 'cmd': cmd,
 anchor_5r_3s = 'retina-5r-3s.ini'
 cmd, args = gen_command(anchor_config=anchor_5r_3s,
                         store_path='anchor_5r_3s',
-                        backbone=anchor_5r_3s, **default_args)
+                        backbone=backbone, **default_args)
 cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
@@ -194,7 +195,7 @@ if __name__ == '__main__':
     #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
 
     if run:
-        tmp_cmd = cmds['0']
+        tmp_cmd = cmds['1']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
                                                                                 name=tmp_cmd['name'],
                                                                                 backbone=tmp_cmd['backbone'],
