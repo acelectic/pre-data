@@ -26,15 +26,15 @@ epochs= 10
 batch_size=1
 
 steps=int(train_size//1)
-steps= 2000
+steps= 3000
 print(steps)
 
 cmds = {}
 base_path = os.getcwd() +'/store_models'
 
-def create_dir(path):
-  snapshot_path = base_path +'/'+ path + '/snapshots'
-  tensorboard_dir = base_path +'/'+ path + '/logs'
+def create_dir(backbone, path):
+  snapshot_path = base_path +'/'+backbone+'/'+ path + '/snapshots'
+  tensorboard_dir = base_path +'/'+backbone+'/'+ path + '/logs'
 
   # Create target directory & all intermediate directories if don't exists
   try:
@@ -51,11 +51,16 @@ def create_dir(path):
 
   return snapshot_path, tensorboard_dir
       
+def optimize_anchor():
+    cmd = "python3 optimize_anchors.py '/home/minibear/Desktop/pre-data/pigeon.csv' --no-resize --ratios=5 --image-max-side 700 --image-min-side 700"
+  
+def debug():
+      cmd = "retinanet-debug --anchors --display-name --annotations --config retina-5r-3s.ini csv train_neg_0.85-1885-332-2217.csv classes"
 
 def gen_command(train_file=None, test_file=None, class_file=None,  weights= None,
-    backbone = backbone, max_side= 700, min_side = 700, batch_size= 1, epochs=10, steps= 1000,
+    backbone = "resnet50", max_side= 700, min_side = 700, batch_size= 1, epochs=10, steps= 1000,
     anchor_config = None, snapshot_path=None, tensorboard_dir=None, store_path=None):
-  snapshot_path, tensorboard_dir = create_dir(store_path)
+  snapshot_path, tensorboard_dir = create_dir(backbone, store_path)
 
   cmd = "retinanet-train --backbone {backbone}\
     --weights {weights} --image-max-side {max} --image-min-side {min}\
@@ -115,7 +120,10 @@ cmd = gen_command(train_file= train_file,
 cmds['2'] = {'name':'anchor_5r_3s', 'cmd':cmd}
 
 
-### resnet101 700 700
+max_side=400
+min_side=400
+
+### resnet101 300 300
 backbone = 'resnet101'
 #	default anchor
 cmd = gen_command(train_file= train_file,
@@ -125,7 +133,7 @@ cmd = gen_command(train_file= train_file,
                   store_path='default',
                   backbone = backbone, max_side= max_side, min_side = min_side, batch_size= batch_size, epochs=epochs, steps= steps)
 
-cmds['0'] = {'name':'default', 'cmd':cmd}
+cmds['3'] = {'name':'default', 'cmd':cmd}
 
 #	anchor	3r 
 anchor_3r = 'retinanet-3.ini'
@@ -137,7 +145,7 @@ cmd = gen_command(train_file= train_file,
                   store_path='anchor_3r',
                   backbone = backbone, max_side= max_side, min_side = min_side, batch_size= batch_size, epochs=epochs, steps= steps)
 
-cmds['1'] = {'name':'anchor_3r', 'cmd':cmd}
+cmds['4'] = {'name':'anchor_3r', 'cmd':cmd}
 
 
 #	anchor	5r 3s 
@@ -150,7 +158,7 @@ cmd = gen_command(train_file= train_file,
                   store_path='anchor_5r_3s',
                   backbone = backbone, max_side= max_side, min_side = min_side, batch_size= batch_size, epochs=epochs, steps= steps)
 
-cmds['2'] = {'name':'anchor_5r_3s', 'cmd':cmd}
+cmds['5'] = {'name':'anchor_5r_3s', 'cmd':cmd}
 
 if __name__ == '__main__':
   run = True
@@ -159,6 +167,6 @@ if __name__ == '__main__':
   #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
     
   if run:
-      tmp_cmd = cmds['0']
+      tmp_cmd = cmds['3']
       print('{}\n\n{}\n\n{}'.format('#'*30, tmp_cmd['name'], '#'*30))
       os.system(tmp_cmd['cmd']) 
