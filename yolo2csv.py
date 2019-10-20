@@ -26,7 +26,7 @@ def clean_bbox(bbox, image_name, h, w):
     # print('\t', h,' ', w)
     result = []
     for i in tmp:
-        name_tmp = name_class[int(i[0])]optimization
+        name_tmp = name_class[int(i[0])]
         x_cen = i[1]*w
         y_cen = i[2]*h
         w_ = i[3]*w

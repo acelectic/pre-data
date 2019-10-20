@@ -34,31 +34,7 @@ cmds = {}
 base_path = os.getcwd() + '/store_models/main'
 base_path = os.getcwd() + '/store_models/test'
 
-default_args = {
-    'train_file': train_file,
-    'test_file': test_file,
-    'class_file': class_file,
-    'max_side': 700,
-    'min_side': 700,
-    'epochs': epochs,
-    'batch_size': batch_size,
-    'steps': steps,
-}
 
-# default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
-# default_args['snapshot']='store_models/resnet101/default/snapshots/resnet101_01_loss-26.9501_val-loss-2.5892_mAP-0.3225.h5',
-
-# resnet50_params = {
-#     'backbone': "resnet50",
-#     'max_side': 700,
-#     'min_side': 700,
-# }
-
-# resnet101_params = {
-#     'backbone': "resnet101",
-#     'max_side': 400,
-#     'min_side': 400,
-# }
 
 
 def export_inference_model():
@@ -144,6 +120,32 @@ def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
 
 def test_cmd():
     return gen_command(epochs=1, steps=10)
+#########################################################################################################################
+default_args = {
+    'train_file': train_file,
+    'test_file': test_file,
+    'class_file': class_file,
+    'max_side': 700,
+    'min_side': 700,
+    'epochs': epochs,
+    'batch_size': batch_size,
+    'steps': steps,
+}
+
+# default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
+# default_args['snapshot']='store_models/resnet101/default/snapshots/resnet101_01_loss-26.9501_val-loss-2.5892_mAP-0.3225.h5',
+
+# resnet50_params = {
+#     'backbone': "resnet50",
+#     'max_side': 700,
+#     'min_side': 700,
+# }
+
+# resnet101_params = {
+#     'backbone': "resnet101",
+#     'max_side': 400,
+#     'min_side': 400,
+# }
 
 
 # resnet50 700 700
@@ -172,6 +174,9 @@ cmd, args = gen_command(anchor_config=anchor_5r_3s,
 
 cmds['2'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
              'backbone': backbone, 'args': args}
+
+
+#########################################################################################################################
 
 default_args = {
     'train_file': train_file,
@@ -215,6 +220,9 @@ cmd, args = gen_command(anchor_config=anchor_5r_3s,
 cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
+
+#########################################################################################################################
+
 if __name__ == '__main__':
     run = True
     #run = False
@@ -222,7 +230,7 @@ if __name__ == '__main__':
     #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
 
     if run:
-        tmp_cmd = cmds['3']
+        tmp_cmd = cmds['0']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
                                                                                   name=tmp_cmd['name'],
                                                                                   backbone=tmp_cmd['backbone'],
