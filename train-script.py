@@ -38,13 +38,25 @@ default_args = {
     'test_file': test_file,
     'class_file': class_file,
     'weights': "resnet50_coco_best_v2.1.0.h5",
-    'max_side': 700,
-    'min_side': 700,
     'epochs': epochs,
     'batch_size': batch_size,
     'steps': steps,
 }
 
+resnet50_params = {
+    'backbone': "resnet50",
+    'max_side': 700,
+    'min_side': 700,
+}
+
+resnet101_params = {
+    'backbone': "resnet101",
+    'max_side': 400,
+    'min_side': 400,
+}
+
+def export_inference_model():
+    retinanet-convert-model training-model.h5 inference-model.h5
 
 def create_dir(backbone, path):
     snapshot_path = base_path + '/'+backbone+'/' + path + '/snapshots'
