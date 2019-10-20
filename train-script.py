@@ -3,8 +3,8 @@ import os
 train = 'train_0.85-1885.csv'
 train_neg = 'train_neg_0.85-1885-332-2217.csv'
 
-train_file = train
-# train_file = train_neg
+# train_file = train
+train_file = train_neg
 
 with open(train_file) as f:
     print(len(f.readlines()))
@@ -32,7 +32,7 @@ print(steps)
 
 cmds = {}
 base_path = os.getcwd() + '/store_models/main'
-base_path = os.getcwd() + '/store_models/test'
+base_path = os.getcwd() + '/store_models/test-neg'
 
 
 
@@ -66,8 +66,19 @@ def optimize_anchor():
 
 
 def debug():
-    cmd = "retinanet-debug --anchors --display-name --annotations --config retina-5r-3s.ini csv train_neg_0.85-1885-332-2217.csv classes"
+    cmd = "retinanet-debug --anchors --display-name --annotations csv train_neg_0.85-1885-332-2217.csv classes"
 
+
+os.makedirs('evalresult/img/', exist_ok=True)
+def eval_model():
+    cmd = "retinanet-evaluate --backbone 'resnet50' --iou-threshold 0.5 --score-threshold 0.75 --save-path 'evalresult/img/' --image-min-side 700 --image-max-side 700 csv {test_file} {class_file} {model}".format(
+        model='evalresult/model-infer.h5',
+         model_infer='evalresult/model_infer.h5',
+         test_file= test_file,
+         class_file=class_file)           
+    os.system(cmd)
+      
+ 
 
 def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
                 backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=10, steps=1000,
@@ -224,8 +235,8 @@ cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
 #########################################################################################################################
 
 if __name__ == '__main__':
-    run = True
-    #run = False
+    # run = True
+    run = False
     # for i in cmds:
     #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
 
@@ -236,3 +247,5 @@ if __name__ == '__main__':
                                                                                   backbone=tmp_cmd['backbone'],
                                                                                   args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
         os.system(tmp_cmd['cmd'])
+
+    eval_model()
