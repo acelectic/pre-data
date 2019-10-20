@@ -16,6 +16,7 @@ test_file = 'test_0.85-333.csv'
 class_file = 'classes'
 
 weights = "resnet50_coco_best_v2.1.0.h5"
+weights=None
 
 max_side = 700
 min_side = 700
@@ -26,7 +27,7 @@ epochs = 10
 batch_size = 1
 
 steps = int(train_size//1)
-steps = 10
+steps = 2000
 print(steps)
 
 cmds = {}
@@ -37,7 +38,9 @@ default_args = {
     'train_file': train_file,
     'test_file': test_file,
     'class_file': class_file,
-    'weights': "resnet50_coco_best_v2.1.0.h5",
+    'weights': weights,
+    'max_side': 700,
+    'min_side': 700,
     'epochs': epochs,
     'batch_size': batch_size,
     'steps': steps,
