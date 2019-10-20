@@ -16,7 +16,7 @@ test_file = 'test_0.85-333.csv'
 class_file = 'classes'
 
 weights = "resnet50_coco_best_v2.1.0.h5"
-weights=None
+# weights = None
 
 max_side = 700
 min_side = 700
@@ -38,7 +38,6 @@ default_args = {
     'train_file': train_file,
     'test_file': test_file,
     'class_file': class_file,
-    'weights': weights,
     'max_side': 700,
     'min_side': 700,
     'epochs': epochs,
@@ -46,20 +45,25 @@ default_args = {
     'steps': steps,
 }
 
-resnet50_params = {
-    'backbone': "resnet50",
-    'max_side': 700,
-    'min_side': 700,
-}
+# default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
+# default_args['snapshot']='store_models/resnet101/default/snapshots/resnet101_01_loss-26.9501_val-loss-2.5892_mAP-0.3225.h5',
 
-resnet101_params = {
-    'backbone': "resnet101",
-    'max_side': 400,
-    'min_side': 400,
-}
+# resnet50_params = {
+#     'backbone': "resnet50",
+#     'max_side': 700,
+#     'min_side': 700,
+# }
+
+# resnet101_params = {
+#     'backbone': "resnet101",
+#     'max_side': 400,
+#     'min_side': 400,
+# }
+
 
 def export_inference_model():
-    retinanet-convert-model training-model.h5 inference-model.h5
+    cmd = "retinanet-convert-model training-model.h5 inference-model.h5"
+
 
 def create_dir(backbone, path):
     snapshot_path = base_path + '/'+backbone+'/' + path + '/snapshots'
@@ -95,6 +99,12 @@ def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
 
     snapshot_path, tensorboard_dir = create_dir(backbone, store_path)
 
+    if snapshot != None or weights == None:
+        weights = ''
+    elif weights:
+        weights = '--weights ' + weights
+
+
     cmd = "retinanet-train {snapshot} --backbone {backbone}\
      {weights} --image-max-side {max} --image-min-side {min}\
     --batch-size {batch_size} --epochs {epochs} --steps {steps} --weighted-average --compute-val-loss\
@@ -102,8 +112,7 @@ def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
       csv {train_file} {class_file} --val-annotations {test_file} "\
       .format(backbone='"'+backbone+'"', max=max_side, min=min_side,
               batch_size=batch_size, epochs=epochs, steps=steps,
-              weights='--weights ' +
-              weights or "--weights resnet50_coco_best_v2.1.0.h5" if not snapshot else '',
+              weights= weights,
               train_file=train_file or 'train_neg_0.85-1885-332-2217.csv',
               class_file=class_file or 'classes',
               test_file=test_file or 'test_0.85-333.csv',
@@ -168,7 +177,6 @@ default_args = {
     'train_file': train_file,
     'test_file': test_file,
     'class_file': class_file,
-    'weights': "resnet50_coco_best_v2.1.0.h5",
     'max_side': 400,
     'min_side': 400,
     'epochs': epochs,
@@ -176,11 +184,15 @@ default_args = {
     'steps': steps,
 }
 
+# default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
+# default_args['snapshot']='store_models/resnet101/default/snapshots/resnet101_01_loss-26.9501_val-loss-2.5892_mAP-0.3225.h5',
+
+
+
 # resnet101 300 300
 backbone = 'resnet101'
 #	default anchor
 cmd, args = gen_command(store_path='default',
-                        snapshot='store_models/resnet101/default/snapshots/resnet101_01_loss-26.9501_val-loss-2.5892_mAP-0.3225.h5',
                         backbone=backbone, **default_args)
 
 cmds['3'] = {'name': 'default', 'cmd': cmd, 'backbone': backbone, 'args': args}
@@ -210,9 +222,9 @@ if __name__ == '__main__':
     #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
 
     if run:
-        tmp_cmd = cmds['1']
+        tmp_cmd = cmds['3']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
-                                                                                name=tmp_cmd['name'],
-                                                                                backbone=tmp_cmd['backbone'],
-                                                                                args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
+                                                                                  name=tmp_cmd['name'],
+                                                                                  backbone=tmp_cmd['backbone'],
+                                                                                  args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
         os.system(tmp_cmd['cmd'])
