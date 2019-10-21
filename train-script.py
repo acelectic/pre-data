@@ -21,19 +21,19 @@ weights = "resnet50_coco_best_v2.1.0.h5"
 max_side = 700
 min_side = 700
 
-epochs = 10
+epochs = 20
 #epochs= 1
 
 batch_size = 1
 
 steps = int(train_size//1)
-steps = 2000
+steps = 2500
 print(steps)
 
 cmds = {}
-base_path = os.getcwd() + '/store_models/main'
-base_path = os.getcwd() + '/store_models/test-neg'
-
+# base_path = os.getcwd() + '/store_models/main'
+# base_path = os.getcwd() + '/store_models/test-neg'
+base_path = os.getcwd() + '/store_models/test-eval'
 
 
 
@@ -69,11 +69,12 @@ def debug():
     cmd = "retinanet-debug --anchors --display-name --annotations csv train_neg_0.85-1885-332-2217.csv classes"
 
 
+# os.rmdir('evalresult/img')
 os.makedirs('evalresult/img/', exist_ok=True)
 def eval_model():
-    cmd = "retinanet-evaluate --backbone 'resnet50' --iou-threshold 0.5 --score-threshold 0.75 --save-path 'evalresult/img/' --image-min-side 700 --image-max-side 700 csv {test_file} {class_file} {model}".format(
+    cmd = "retinanet-evaluate --backbone 'resnet50' --iou-threshold 0.5 --score-threshold 0.5 --save-path 'evalresult/img/' --image-min-side 700 --image-max-side 700 csv {test_file} {class_file} {model}".format(
         model='evalresult/model-infer.h5',
-         model_infer='evalresult/model_infer.h5',
+         model_infer='evalresult/model-infer-neg50-epoch-20-loss_0.1431.h5',
          test_file= test_file,
          class_file=class_file)           
     os.system(cmd)
@@ -159,6 +160,26 @@ default_args = {
 # }
 
 
+default_args = {
+        'train_file': train_file,
+        'test_file': test_file,
+        'class_file': class_file,
+        'max_side': 700,
+        'min_side': 700,
+        'epochs': 1,
+        'batch_size': 1,
+        'steps': 10,
+}
+
+backbone = 'resnet50'
+cmd, args = gen_command(train_file=train_file, test_file=test_file, class_file=class_file,  weights=None,
+                backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=2, steps=50,
+                anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path='test', snapshot=None)
+
+cmds['test'] = {'name': 'test', 'cmd': cmd,
+             'backbone': backbone, 'args': args}
+
+
 # resnet50 700 700
 backbone = 'resnet50'
 #	default anchor
@@ -193,8 +214,8 @@ default_args = {
     'train_file': train_file,
     'test_file': test_file,
     'class_file': class_file,
-    'max_side': 400,
-    'min_side': 400,
+    'max_side': 500,
+    'min_side': 500,
     'epochs': epochs,
     'batch_size': batch_size,
     'steps': steps,
@@ -231,21 +252,36 @@ cmd, args = gen_command(anchor_config=anchor_5r_3s,
 cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
+# #########################################################################################################################
 
-#########################################################################################################################
 
 if __name__ == '__main__':
-    # run = True
-    run = False
+    run = True
+    # run = False
     # for i in cmds:
     #   print("{i}\n{cmd}".format(i=i, cmd=cmds[i]))
 
     if run:
         tmp_cmd = cmds['0']
+        # print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
+        #                                                                           name=tmp_cmd['name'],
+        #                                                                           backbone=tmp_cmd['backbone'],
+        #                                                                           args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
+        # os.system(tmp_cmd['cmd'])
+
+        # tmp_cmd = cmds['3']
+        # print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
+        #                                                                           name=tmp_cmd['name'],
+        #                                                                           backbone=tmp_cmd['backbone'],
+        #                                                                           args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
+        # os.system(tmp_cmd['cmd'])
+
+        tmp_cmd = cmds['test']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
                                                                                   name=tmp_cmd['name'],
                                                                                   backbone=tmp_cmd['backbone'],
                                                                                   args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
         os.system(tmp_cmd['cmd'])
+    # eval_model()
 
-    eval_model()
+  
