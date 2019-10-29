@@ -38,7 +38,7 @@ cmds = {}
 # base_path = os.getcwd() + '/store_models/main'
 # base_path = os.getcwd() + '/store_models/test-neg'
 # base_path = os.getcwd() + '/store_models/test-eval'
-base_path = os.getcwd() + '/store_models/test-nikko'
+base_path = os.getcwd() + '/store_models/test-nikko-new'
 
 
 def yolo_mark():
