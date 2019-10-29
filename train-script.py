@@ -2,7 +2,7 @@ import os
 
 train = 'train_0.85-1885.csv'
 train_neg = 'train_neg_0.85-1885-332-2217.csv'
-train_nikko = 'train-nikko_neg_0.85-1973-348-2321.csv'
+train_nikko = 'train-nikko_neg_0.85-277-50-327.csv'
 
 # train_file = train
 # train_file = train_neg
@@ -16,8 +16,8 @@ with open(train_file) as f:
 
 
 # test_file = 'test_0.85-333.csv'
-test_file = 'test-nikko_0.85-349.csv'
-class_file = 'classes'
+test_file = 'test-nikko_0.85-50.csv'
+class_file = 'classes.txt'
 
 weights = "resnet50_coco_best_v2.1.0.h5"
 # weights = None
@@ -88,6 +88,8 @@ def eval_model():
          class_file=class_file)
     os.system(cmd)
 
+def neval():
+    cmd= "retinanet-evaluate --backbone 'resnet50' --iou-threshold 0.5 --score-threshold 0.5 --save-path 'evalresult/img-test-nikko-resnet50/' --image-min-side 700 --image-max-side 700 csv test-nikko_0.85-50.csv classes.txt evalresult/model-infer-nikko-neg50-epoch-20-loss_0.0696.h5"
 
 def eval_model_test():
     cmd = "retinanet-evaluate --backbone 'resnet50' --iou-threshold 0.5 --score-threshold 0.5 --save-path 'evalresult/img/' --image-min-side 700 --image-max-side 700 csv {test_file} {class_file} {model_infer}".format(
@@ -193,7 +195,7 @@ backbone = 'resnet50'
 cmd, args = gen_command(train_file=train_file, test_file=test_file, class_file=class_file,  weights=None,
                 backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=2, steps=50,
                 anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path='test', snapshot=None)
-
+test
 cmds['test'] = {'name': 'test', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
