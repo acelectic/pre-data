@@ -49,6 +49,7 @@ def clean_bbox(bbox, image_name, h, w):
 
 
 full_data = []
+nf_datas = {}
 with open('pigeon_nikko.csv', 'w') as f_pigeon:
     rtext = glob.glob(data_dir + '*.txt')
     tmp_i = 1
@@ -70,7 +71,7 @@ with open('pigeon_nikko.csv', 'w') as f_pigeon:
             img = cv2.imread(image_namet)
             h, w = img.shape[0], img.shape[1]
             # print('do it',txt_name, '\t', image_name)
-            print('\tbbox {}'.format(repr(bbox)))
+            # print('\tbbox {}'.format(repr(bbox)))
             result = clean_bbox(bbox, image_name, h=h, w=w)
             # print('\tresult{}'.format(result))
 
@@ -78,8 +79,13 @@ with open('pigeon_nikko.csv', 'w') as f_pigeon:
                 if i[5] == 'pigeon':
                     full_data += [i]
                     t_ = '"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5])
-                    print(t_)
+                    # print(t_)
                     f_pigeon.write(t_)
+                    
+                    try:
+                        nf_datas[to_path(i[0])] += [[i[1], i[2], i[3], i[4], i[5]]]
+                    except:
+                        nf_datas[to_path(i[0])] = [[i[1], i[2], i[3], i[4], i[5]]]
 
                 # elif i[5] == 'kajok':
                 #     t_ = '"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5])
@@ -92,42 +98,78 @@ with open('pigeon_nikko.csv', 'w') as f_pigeon:
         else:
             # print(txt_name)
             pass
+        
+        
+# for i, boxs in nf_datas.items():
+#     print(i)
+#     print(boxs)
+
+
+
+
+
 print('NEG')
 bg_list = []
 for i in glob.glob('data/img/neg*'):
-    bg_list += [[i.split('/')[-1],'','','','','']]
+    bg_list += [','.join(map(str, [i,'','','','','']))]
 
 print(len(bg_list))
 random.shuffle(bg_list)
 
+
+print(len(nf_datas.keys()))
+d_keys = list(nf_datas.keys())
+random.shuffle(d_keys)
+
 train_ratio = .85
-full_size = len(full_data)
+full_size = len(d_keys)
 
-print(full_data)
-random.shuffle(full_data)
+train_keys = d_keys[:int(full_size*train_ratio)]
+test_keys = d_keys[int(full_size*train_ratio):]
+# train = full_data[:int(full_size*train_ratio)]
+# test = full_data[int(full_size*train_ratio):]
+print('trainKeys {}\ntestKeys {}'.format(len(train_keys), len(test_keys)))
 
-train = full_data[:int(full_size*train_ratio)]
-test = full_data[int(full_size*train_ratio):]
+train = []
+for i in train_keys:
+    for data in nf_datas[i]:
+        train += ['{key},{data}'.format(key=i, data=','.join(map(str, data)))]
 
-neg_ratio_of_train = int((len(train)/train_ratio) * (1-train_ratio))
+tests = []
+for i in test_keys:
+    for data in nf_datas[i]:
+        tests += ['{key},{data}'.format(key=i, data=','.join(map(str, data)))]
 
-print('train:{}\ntest:{}\nneg:{}'.format(len(train), len(test), neg_ratio_of_train))
+# for i in train:
+#     print(repr(i))
 
-header = 'image,xmin,ymin,xmax,ymax,label\n'
+# for i in test:
+#     print(i)
 
-with open('train_{}-{}.csv'.format(train_ratio, len(train)), 'w') as f:
+neg_ratio_of_train = len(test_keys)
+print(neg_ratio_of_train)
+print('train:{}\ntest:{}\nneg:{}'.format(len(train), len(tests), neg_ratio_of_train))
+
+# print(bg_list)
+# header = 'image,xmin,ymin,xmax,ymax,label\n'
+
+with open('train_{}-{}.csv'.format(train_ratio, len(train_keys)), 'w') as f:
     for i in train:
-        f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
+        f.write('{}\n'.format(i))
+        # f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
     # for i in bg_list[:neg_ratio_of_train]:
     #     f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
-with open('test-nikko_{}-{}.csv'.format(train_ratio, len(test)), 'w') as f:
-    for i in test:
-        f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
+    
+with open('test-nikko_{}-{}.csv'.format(train_ratio, len(test_keys)), 'w') as f:
+    for i in tests:
+        f.write('{}\n'.format(i))
+        # f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
 
 train_neg = train + bg_list[:neg_ratio_of_train]
 random.shuffle(train_neg)
 
-with open('train-nikko_neg_{}-{}-{}-{}.csv'.format(train_ratio, len(train), neg_ratio_of_train, len(train_neg)), 'w') as f:
-    for i in train:
-        f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
+with open('train-nikko_neg_{}-{}-{}-{}.csv'.format(train_ratio, len(train_keys), neg_ratio_of_train, full_size), 'w') as f:
+    for i in train_neg:
+        f.write('{}\n'.format(i))
+        # f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
 
