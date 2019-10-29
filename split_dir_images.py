@@ -1,7 +1,9 @@
 import glob, os
 from shutil import copyfile
 
-test_file = 'test_0.85-333.csv'
+# test_file = 'test_0.85-333.csv'
+test_file = 'test-nikko-0.85.csv'
+
 test_temp = None
 
 with open(test_file) as f:
@@ -11,7 +13,7 @@ with open(test_file) as f:
 print(len(test_temp))
 
 base_dir = os.getcwd()
-new_test_dir = base_dir+'/data4eval/test'
+new_test_dir = base_dir+'/data4eval/test_nikko'
 groundtruths_dir = base_dir+'/data4eval/groundtruths'
 print(base_dir)
 
@@ -22,20 +24,20 @@ header = 'image,xmin,ymin,xmax,ymax,label\n'
 tmp_truths = {}
 
 with open('data4eval/{}'.format(test_file), 'w') as f:
-    f.write(header)
-    for i in test_temp[:]:
-        
+    for i in test_temp[1:]:
+        header
 
         tmp_split = i.split(',')
-        print(tmp_split)
+        print('tmp_splt', tmp_split)
         name_img = tmp_split[0].replace('"', '')
         old_img = base_dir + '/' + name_img
         new_name_img = new_test_dir + '/' + name_img.split('/')[-1]
-        
+     
+        print(old_img, new_name_img)   
         copyfile(old_img, new_name_img)
-        print(old_img, new_name_img)
+        
 
-        new_i = ','.join([tmp_split[0].replace('data/img/', 'data4eval/test/' )]+tmp_split[1:])
+        new_i = ','.join([tmp_split[0].replace('data/img_nikko/', 'data4eval/test_nikko/' )]+tmp_split[1:])
         print(repr(new_i))
         f.write(new_i)
         tr_name = name_img.split('/')[-1]
