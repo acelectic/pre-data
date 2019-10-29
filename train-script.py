@@ -195,7 +195,7 @@ backbone = 'resnet50'
 cmd, args = gen_command(train_file=train_file, test_file=test_file, class_file=class_file,  weights=None,
                 backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=2, steps=50,
                 anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path='test', snapshot=None)
-test
+
 cmds['test'] = {'name': 'test', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
