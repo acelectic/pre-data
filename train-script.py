@@ -1,12 +1,15 @@
 import os
 
-train = 'train_0.85-1885.csv'
-train_neg = 'train_neg_0.85-1885-332-2217.csv'
-train_nikko = 'train-nikko_neg_0.85-277-50-327.csv'
+# train = 'train_0.85-1885.csv'
+# train_neg = 'train_neg_0.85-1885-332-2217.csv'
+# train_nikko = 'train-nikko_neg_0.85-277-50-327.csv'
+
+train_merge = 'train_merge.csv'
 
 # train_file = train
 # train_file = train_neg
-train_file = train_nikko
+# train_file = train_nikko
+train_file = train_merge
 
 
 with open(train_file) as f:
@@ -16,7 +19,11 @@ with open(train_file) as f:
 
 
 # test_file = 'test_0.85-333.csv'
-test_file = 'test-nikko_0.85-50.csv'
+# test_file = 'test-nikko_0.85-50.csv'
+test_merge = 'test_merge.csv'
+
+test_file = test_merge
+
 class_file = 'classes.txt'
 
 weights = "resnet50_coco_best_v2.1.0.h5"
@@ -38,7 +45,7 @@ cmds = {}
 # base_path = os.getcwd() + '/store_models/main'
 # base_path = os.getcwd() + '/store_models/test-neg'
 # base_path = os.getcwd() + '/store_models/test-eval'
-base_path = os.getcwd() + '/store_models/test-nikko-new'
+base_path = os.getcwd() + '/store_models/test-merge'
 
 
 def yolo_mark():
@@ -48,7 +55,7 @@ def export_inference_model():
     cmd = "retinanet-convert-model training-model.h5 inference-model.h5"
 
 
-def create_dir(backbone, path):
+def create_dir(base_path, backbone, path):
     snapshot_path = base_path + '/'+backbone+'/' + path + '/snapshots'
     tensorboard_dir = base_path + '/'+backbone+'/' + path + '/logs'
 
@@ -103,9 +110,9 @@ def eval_model_test():
 
 def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
                 backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=10, steps=1000,
-                anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path=None, snapshot=None):
+                anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path=None, snapshot=None, base_path=os.getcwd() + '/store_models/temp'):
 
-    snapshot_path, tensorboard_dir = create_dir(backbone, store_path)
+    snapshot_path, tensorboard_dir = create_dir(base_path,  backbone, store_path)
 
     if snapshot != None or weights == None:
         weights = ''
@@ -145,7 +152,8 @@ def gen_command(train_file=None, test_file=None, class_file=None,  weights=None,
         'snapshot_path': snapshot_path,
         'tensorboard_dir': tensorboard_dir,
         'store_path': store_path,
-        'snapshot': snapshot
+        'snapshot': snapshot,
+        'base_path': base_path
     }
     return cmd, args
 
@@ -162,6 +170,7 @@ default_args = {
     'epochs': epochs,
     'batch_size': batch_size,
     'steps': steps,
+    'base_path': base_path
 }
 
 # default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
@@ -191,13 +200,13 @@ default_args = {
 #         'steps': 10,
 # }
 
-backbone = 'resnet50'
-cmd, args = gen_command(train_file=train_file, test_file=test_file, class_file=class_file,  weights=None,
-                backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=2, steps=50,
-                anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path='test', snapshot=None)
+# backbone = 'resnet50'
+# cmd, args = gen_command(train_file=train_file, test_file=test_file, class_file=class_file,  weights=None,
+#                 backbone="resnet50", max_side=700, min_side=700, batch_size=1, epochs=2, steps=50,
+#                 anchor_config=None, snapshot_path=None, tensorboard_dir=None, store_path='test', snapshot=None, base_path=base_path)
 
-cmds['test'] = {'name': 'test', 'cmd': cmd,
-             'backbone': backbone, 'args': args}
+# cmds['test'] = {'name': 'test', 'cmd': cmd,
+#              'backbone': backbone, 'args': args}
 
 
 # resnet50 700 700
@@ -239,6 +248,7 @@ default_args = {
     'epochs': epochs,
     'batch_size': batch_size,
     'steps': steps,
+    'base_path': base_path    
 }
 
 # default_args['weights']: "resnet101_weights_tf_dim_ordering_tf_kernels.h5"
