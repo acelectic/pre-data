@@ -118,7 +118,6 @@ class Model:
             stop=datetime(year=2019, month=10, day=26))
 
     def detect(self, image):
-
         self.time2store = self.gen_datetime()
         # self.time2store = datetime.now()
 
@@ -200,9 +199,9 @@ class Model:
                 found_[self.labels_to_names[label]] += 1
             except:
                 found_[self.labels_to_names[label]] = 1
-        os.makedirs("data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
+        # os.makedirs("data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
         
-        cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is, self.model_is,  datetime.now(), image_id), draw)
+        # cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is, self.model_is,  datetime.now(), image_id), draw)
         try:
 
             if self.es_mode and self.es_status and found_['pigeon'] > 0:
@@ -216,7 +215,7 @@ class Model:
         except Exception as e:
             print(e)
 
-        return temp_data
+        return processing_time
 
     def setConfidence(self, confidence):
         print("confident: {} ---> {}".format(self.confThreshold, confidence))
@@ -226,11 +225,13 @@ class Model:
 def testResnet50(base_dir, es):
     print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed Resnet 50', '#'*30))
     base_dir = base_dir
-    model = Model(model_is='resnet50', es=es)
+    model_is = 'resnet50'
+    model = Model(model_is=model_is, es=es)
     result_detect = {}
     avg_process_time = 0
     imgs_dir = glob.glob(base_dir+'/*')[:]
 
+    avg = []
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
         # print(img_name)
@@ -240,16 +241,21 @@ def testResnet50(base_dir, es):
         _, frame = img.read()
 
         if _:
-            result = model.detect(frame)
-
+            ps_time = model.detect(frame)
+            avg += [ps_time]
+    avg_ = sum(avg)/len(avg)
+    print('{}: {}'.format(model_is, avg_))
+    
 def test_c_Resnet50(base_dir, es):
     print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed c-Resnet 50', '#'*30))
     base_dir = base_dir
-    model = Model(model_is='c_resnet50', es=es)
+    model_is = 'c_resnet50'
+    model = Model(model_is=model_is, es=es)
     result_detect = {}
     avg_process_time = 0
     imgs_dir = glob.glob(base_dir+'/*')[:]
 
+    avg = []
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
         # print(img_name)
@@ -259,16 +265,22 @@ def test_c_Resnet50(base_dir, es):
         _, frame = img.read()
 
         if _:
-            result = model.detect(frame)
-
+            ps_time = model.detect(frame)
+            avg += [ps_time]
+    avg_ = sum(avg)/len(avg)
+    print('{}: {}'.format(model_is, avg_))
+    
+    
 def testResnet101(base_dir, es):
     print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed Resnet 101', '#'*30))
     base_dir = base_dir
-    model = Model(model_is='resnet101', es=es)
+    model_is = 'resnet101'
+    model = Model(model_is=model_is, es=es)
     result_detect = {}
     avg_process_time = 0
     imgs_dir = glob.glob(base_dir+'/*')[:]
 
+    avg = []
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
         # print(img_name)
@@ -278,16 +290,21 @@ def testResnet101(base_dir, es):
         _, frame = img.read()
 
         if _:
-            result = model.detect(frame)
-
+            ps_time = model.detect(frame)
+            avg += [ps_time]
+    avg_ = sum(avg)/len(avg)
+    print('{}: {}'.format(model_is, avg_))
+    
 def test_c_Resnet101(base_dir, es):
     print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed c-Resnet 101', '#'*30))
     base_dir = base_dir
-    model = Model(model_is='c_resnet101', es=es)
+    model_is='c_resnet101'
+    model = Model(model_is=model_is, es=es)
     result_detect = {}
     avg_process_time = 0
     imgs_dir = glob.glob(base_dir+'/*')[:]
 
+    avg = []
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
         # print(img_name)
@@ -297,8 +314,11 @@ def test_c_Resnet101(base_dir, es):
         _, frame = img.read()
 
         if _:
-            result = model.detect(frame)
-            
+            ps_time = model.detect(frame)
+            avg += [ps_time]
+    avg_ = sum(avg)/len(avg)
+    print('{}: {}'.format(model_is, avg_))
+             
 if __name__ == '__main__':
     # from elas_api4test import Elas_api
 
