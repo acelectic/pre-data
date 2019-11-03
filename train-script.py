@@ -77,7 +77,7 @@ def create_dir(base_path, backbone, path):
 
 def optimize_anchor():
     cmd = "python3 optimize_anchors.py '/home/minibear/Desktop/pre-data/pigeon.csv' --no-resize --ratios=5 --image-max-side 700 --image-min-side 700"
-
+    cmd_restnet50 = "python ~/keras-retinanet/anchor-optimization/optimize_anchors.py pigeon-merge-nikko.csv --image-max-side 700 --image-min-side 700"
 
 def debug():
     cmd = "retinanet-debug --anchors --display-name --annotations --image-max-side 700 --image-min-side 700 csv train_neg_0.85-1885-332-2217.csv classes"
@@ -218,7 +218,7 @@ cmd, args = gen_command(store_path='default',
 cmds['0'] = {'name': 'default', 'cmd': cmd, 'backbone': backbone, 'args': args}
 
 #	anchor	3r
-anchor_3r = 'retinanet-3.ini'
+anchor_3r = 'resnet50-custom-anchor.ini'
 cmd, args = gen_command(anchor_config=anchor_3r,
                         store_path='anchor_3r',
                         backbone=backbone, **default_args)
@@ -227,14 +227,14 @@ cmds['1'] = {'name': 'anchor_3r', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
 
-#	anchor	5r 3s
-anchor_5r_3s = 'retina-5r-3s.ini'
-cmd, args = gen_command(anchor_config=anchor_5r_3s,
-                        store_path='anchor_5r_3s',
-                        backbone=backbone, **default_args)
+# #	anchor	5r 3s
+# anchor_5r_3s = 'retina-5r-3s.ini'
+# cmd, args = gen_command(anchor_config=anchor_5r_3s,
+#                         store_path='anchor_5r_3s',
+#                         backbone=backbone, **default_args)
 
-cmds['2'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
-             'backbone': backbone, 'args': args}
+# cmds['2'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
+#              'backbone': backbone, 'args': args}
 
 
 #########################################################################################################################
@@ -265,7 +265,7 @@ cmd, args = gen_command(store_path='default',
 cmds['3'] = {'name': 'default', 'cmd': cmd, 'backbone': backbone, 'args': args}
 
 #	anchor	3r
-anchor_3r = 'retinanet-3.ini'
+anchor_3r = 'resnet101-custom-anchor.ini'
 cmd, args = gen_command(anchor_config=anchor_3r,
                         store_path='anchor_3r',
                         backbone=backbone, **default_args)
@@ -274,13 +274,13 @@ cmds['4'] = {'name': 'anchor_3r', 'cmd': cmd,
              'backbone': backbone, 'args': args}
 
 
-#	anchor	5r 3s snapshot
-anchor_5r_3s = 'retina-5r-3s.ini'
-cmd, args = gen_command(anchor_config=anchor_5r_3s,
-                        store_path='anchor_5r_3s',
-                        backbone=backbone, **default_args)
-cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
-             'backbone': backbone, 'args': args}
+# #	anchor	5r 3s snapshot
+# anchor_5r_3s = 'retina-5r-3s.ini'
+# cmd, args = gen_command(anchor_config=anchor_5r_3s,
+#                         store_path='anchor_5r_3s',
+#                         backbone=backbone, **default_args)
+# cmds['5'] = {'name': 'anchor_5r_3s', 'cmd': cmd,
+#              'backbone': backbone, 'args': args}
 
 # #########################################################################################################################
 
@@ -294,14 +294,29 @@ if __name__ == '__main__':
     # eval_model_test()
 
     if run:
-        tmp_cmd = cmds['0']
+        # tmp_cmd = cmds['0']
+        # print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
+        #                                                                           name=tmp_cmd['name'],
+        #                                                                           backbone=tmp_cmd['backbone'],
+        #                                                                           args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
+        # os.system(tmp_cmd['cmd'])
+
+        # tmp_cmd = cmds['3']
+        # print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
+        #                                                                           name=tmp_cmd['name'],
+        #                                                                           backbone=tmp_cmd['backbone'],
+        #                                                                           args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
+        # os.system(tmp_cmd['cmd'])
+
+
+        tmp_cmd = cmds['1']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
                                                                                   name=tmp_cmd['name'],
                                                                                   backbone=tmp_cmd['backbone'],
                                                                                   args='\n'.join(sorted(['{: <20}{}'.format(k, str(v)) for k, v in tmp_cmd['args'].items()]))))
         os.system(tmp_cmd['cmd'])
 
-        tmp_cmd = cmds['3']
+        tmp_cmd = cmds['4']
         print('{s}\n\nname: {name}\nbackbone: {backbone}\n\n{args}\n\n{n}'.format(s='#'*30, n='#'*30,
                                                                                   name=tmp_cmd['name'],
                                                                                   backbone=tmp_cmd['backbone'],
