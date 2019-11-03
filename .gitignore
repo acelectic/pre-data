@@ -19,3 +19,5 @@ data4eval/
 evalresult/
 
 vott-csv-export/
+
+__pycache__/

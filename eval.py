@@ -27,7 +27,7 @@ class Model:
         # Size image for Save 2 elasticsearch
         self.min_side4elas = 600
         self.max_side4elas = 600
-
+        self.model_is= model_is
         # print('model confidence:', self.confThreshold)
 
         # # es = Elasticsearch()
@@ -61,8 +61,8 @@ class Model:
         # model_path = os.getcwd() + '/model/pigeon_resnet50_midway.h5'
         resnet50_dir = os.environ['MODEL_RESNET50']
         resnet101_dir = os.environ['MODEL_RESNET101']
-        cresnet50_dir = os.environ['MODEL_cRESNET50']
-        cresnet101_dir = os.environ['MODEL_cRESNET101']
+        c_resnet50_dir = os.environ['MODEL_cRESNET50']
+        c_resnet101_dir = os.environ['MODEL_cRESNET101']
         if model_is == 'resnet50':
 
             # Size image for train on retinenet
@@ -73,6 +73,17 @@ class Model:
             self.max_side4train = 700
             self.model = load_model(
                 resnet50_dir, backbone_name='resnet50')
+        elif model_is == 'c_resnet50':
+
+            # Size image for train on retinenet
+            if self.es != None:
+                self.es.setElasIndex(model_is)
+
+            self.min_side4train = 700
+            self.max_side4train = 700
+            self.model = load_model(
+                c_resnet50_dir, backbone_name='resnet50')
+            
         elif model_is == 'resnet101':
             if self.es != None:
                 self.es.setElasIndex(model_is)
@@ -81,6 +92,14 @@ class Model:
             self.max_side4train = 400
             self.model = load_model(
                 resnet101_dir, backbone_name='resnet101')
+        elif model_is == 'c_resnet101':
+            if self.es != None:
+                self.es.setElasIndex(model_is)
+            # Size image for train on retinenet
+            self.min_side4train = 400
+            self.max_side4train = 400
+            self.model = load_model(
+                c_resnet101_dir, backbone_name='resnet101')
 
         self.labels_to_names = {0: 'pigeon'}
 
@@ -131,8 +150,8 @@ class Model:
             draw, min_side=self.min_side4elas, max_side=self.max_side4elas)
 
         # correct for image scale
-        # boxes /= scale
-        box4turret = boxes/scale
+        boxes /= scale
+
         found_ = {}
 
         main_body = {'image_id': image_id, 'time_': time_}
@@ -150,20 +169,22 @@ class Model:
 
             b = box.astype(int)
 
-            draw_box(img4elas, b, color=color)
+            draw_box(draw, b, color=color)
 
             caption = "{} {:.3f}".format(
                 self.labels_to_names[label], score)
             # print(caption)
-            draw_caption(img4elas, b, caption)
+            draw_caption(draw, b, caption)
             temp_data.append([self.labels_to_names[label],
                               score, b, processing_time])
 
             box = [np.ushort(x).item() for x in box]
-
+            
+            # cv2.imshow(str(self.model_is), draw )
+            # cv2.waitKey()
             #  if self.es_mode and self.es_status:
             #     self.es.elas_record(label=label, score=np.float32(score).item(), box=box, image_id=image_id, time_=time_)
-            # index += 1
+
 
             if self.es_mode and self.es_status and self.labels_to_names[label] == 'pigeon':
                 # print('{tag}\n\n{data}\n\n{tag}'.format(
@@ -179,6 +200,9 @@ class Model:
                 found_[self.labels_to_names[label]] += 1
             except:
                 found_[self.labels_to_names[label]] = 1
+        os.makedirs("data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
+        
+        cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is, self.model_is,  datetime.now(), image_id), draw)
         try:
 
             if self.es_mode and self.es_status and found_['pigeon'] > 0:
@@ -205,7 +229,7 @@ def testResnet50(base_dir, es):
     model = Model(model_is='resnet50', es=es)
     result_detect = {}
     avg_process_time = 0
-    imgs_dir = glob.glob(base_dir+'/*.png')[:]
+    imgs_dir = glob.glob(base_dir+'/*')[:]
 
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
@@ -218,6 +242,24 @@ def testResnet50(base_dir, es):
         if _:
             result = model.detect(frame)
 
+def test_c_Resnet50(base_dir, es):
+    print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed c-Resnet 50', '#'*30))
+    base_dir = base_dir
+    model = Model(model_is='c_resnet50', es=es)
+    result_detect = {}
+    avg_process_time = 0
+    imgs_dir = glob.glob(base_dir+'/*')[:]
+
+    for img_path in imgs_dir:
+        img_name = img_path.split(',')[0].split('/')[-1]
+        # print(img_name)
+
+        img = cv2.VideoCapture(img_path)
+
+        _, frame = img.read()
+
+        if _:
+            result = model.detect(frame)
 
 def testResnet101(base_dir, es):
     print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed Resnet 101', '#'*30))
@@ -225,7 +267,7 @@ def testResnet101(base_dir, es):
     model = Model(model_is='resnet101', es=es)
     result_detect = {}
     avg_process_time = 0
-    imgs_dir = glob.glob(base_dir+'/*.png')[:]
+    imgs_dir = glob.glob(base_dir+'/*')[:]
 
     for img_path in imgs_dir:
         img_name = img_path.split(',')[0].split('/')[-1]
@@ -238,19 +280,48 @@ def testResnet101(base_dir, es):
         if _:
             result = model.detect(frame)
 
+def test_c_Resnet101(base_dir, es):
+    print("{}\n\n{}\n\n{}".format('#'*30, 'Test Speed c-Resnet 101', '#'*30))
+    base_dir = base_dir
+    model = Model(model_is='c_resnet101', es=es)
+    result_detect = {}
+    avg_process_time = 0
+    imgs_dir = glob.glob(base_dir+'/*')[:]
 
+    for img_path in imgs_dir:
+        img_name = img_path.split(',')[0].split('/')[-1]
+        # print(img_name)
+
+        img = cv2.VideoCapture(img_path)
+
+        _, frame = img.read()
+
+        if _:
+            result = model.detect(frame)
+            
 if __name__ == '__main__':
-    from elas_api4test import Elas_api
+    # from elas_api4test import Elas_api
 
-    es_ip = '192.168.1.29'
-    es_port = 9200
-    es = Elas_api(ip=es_ip)
+    # es_ip = '192.168.1.29'
+    # es_port = 9200
+    # es = Elas_api(ip=es_ip)
+    es=None
 
     args = sys.argv[1:][0]
-    base_dir = 'data4eval/test_merge/'
+    base_dir = 'data4eval/non-pigeon/'
     print(args)
 
     if args == '1':
         testResnet50(base_dir=base_dir, es=es)
     elif args == '2':
         testResnet101(base_dir=base_dir, es=es)
+    elif args == '3':
+        test_c_Resnet50(base_dir=base_dir, es=es)
+    elif args == '4':
+        test_c_Resnet101(base_dir=base_dir, es=es)
+    elif args == '0':
+        testResnet50(base_dir=base_dir, es=es)     
+        testResnet101(base_dir=base_dir, es=es)
+        
+        test_c_Resnet50(base_dir=base_dir, es=es)
+        test_c_Resnet101(base_dir=base_dir, es=es)
