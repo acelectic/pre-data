@@ -20,10 +20,12 @@ from keras_retinanet.utils.visualization import draw_box, draw_caption
 
 import set_model2environ
 
+import silen
+
 
 class Model:
     def __init__(self, confidence=0.5, es=None, es_mode=False, model_is='resnet50'):
-
+        self.silen_ = silen.Silen_control()
         # Size image for Save 2 elasticsearch
         self.min_side4elas = 600
         self.max_side4elas = 600
@@ -199,21 +201,22 @@ class Model:
                 found_[self.labels_to_names[label]] += 1
             except:
                 found_[self.labels_to_names[label]] = 1
-        os.makedirs(
-            "data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
+        # os.makedirs(
+        #     "data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
 
-        cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is,
-                                                                      self.model_is,  datetime.now(), image_id), draw)
+        # cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is,
+        #                                                               self.model_is,  datetime.now(), image_id), draw)
         try:
-
-            if self.es_mode and self.es_status and found_['pigeon'] > 0:
-                print('{tag}\n\n{data}\n\n{tag}'.format(
-                    tag='#'*50,
-                    data='id: {id}\nbird count: {found}'.format(
-                        id=image_id, found=found_)))
-                self.es.elas_image(image=img4elas, scale=scale, found_=found_,
-                                   processing_time=processing_time, **main_body)
-                # self.es.elas_date(**main_body)
+            if found_['pigeon'] > 0:
+                self.silen_.alert()
+                if self.es_mode and self.es_status :
+                    print('{tag}\n\n{data}\n\n{tag}'.format(
+                        tag='#'*50,
+                        data='id: {id}\nbird count: {found}'.format(
+                            id=image_id, found=found_)))
+                    self.es.elas_image(image=img4elas, scale=scale, found_=found_,
+                                    processing_time=processing_time, **main_body)
+                    # self.es.elas_date(**main_body)
         except Exception as e:
             print(e)
 
@@ -246,8 +249,8 @@ class Model:
         processing_time = time.time() - start
         # print("processing time: ", processing_time)
 
-        # img4elas, scale4elas = resize_image(
-        #     draw, min_side=self.min_side4elas, max_side=self.max_side4elas)
+        img4elas, scale4elas = resize_image(
+            draw, min_side=self.min_side4elas, max_side=self.max_side4elas)
 
         # correct for image scale
         boxes /= scale
@@ -303,17 +306,22 @@ class Model:
         # os.makedirs("data4eval/non-pigeon/result/{}".format(self.model_is), exist_ok=True)
 
         # cv2.imwrite("data4eval/non-pigeon/result/{}/{}-{}.jpg".format(self.model_is, self.model_is,  datetime.now(), image_id), draw)
-        
+        # scheduler = BackgroundScheduler(timezone=get_localzone())
+        # scheduler.add_job(task_deley, 'interval', seconds=sec_per_frame)
+        # scheduler.add_job(stopTurret, 'interval', seconds=20)
+        # scheduler.start()    
 
         try:
-            if self.es_mode and self.es_status and found_['pigeon'] > 0:
-                print('{tag}\n\n{data}\n\n{tag}'.format(
-                    tag='#'*50,
-                    data='id: {id}\nbird count: {found}'.format(
-                        id=image_id, found=found_)))
-                self.es.elas_image(image=img4elas, scale=scale, found_=found_,
-                                   processing_time=processing_time, **main_body)
-                # self.es.elas_date(**main_body)
+            if found_['pigeon'] > 0:
+                self.silen_.alert()
+                if self.es_mode and self.es_status:
+                    print('{tag}\n\n{data}\n\n{tag}'.format(
+                        tag='#'*50,
+                        data='id: {id}\nbird count: {found}'.format(
+                            id=image_id, found=found_)))
+                    self.es.elas_image(image=img4elas, scale=scale, found_=found_,
+                                    processing_time=processing_time, **main_body)
+                    # self.es.elas_date(**main_body)
         except Exception as e:
             print(e)
 
@@ -405,7 +413,7 @@ def test_c_Resnet101(base_dir, es):
 def demo():
     model_is='c_resnet50'
     model = Model(model_is=model_is)
-    img = cv2.VideoCapture(0)
+    img = cv2.VideoCapture(1)
     while 1:
         _, frame = img.read()
         if _:
