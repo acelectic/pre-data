@@ -21,3 +21,7 @@ evalresult/
 vott-csv-export/
 
 __pycache__/
+
+.ipynb_checkpoints/
+
+wandb/
