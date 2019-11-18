@@ -166,7 +166,7 @@ with open('test_{}-{}.csv'.format(train_ratio, len(test_keys)), 'w') as f:
 train_neg = train + bg_list[:neg_ratio_of_train]
 random.shuffle(train_neg)
 
-with open('train_neg_{}-{}-{}-{}.csv'.format(train_ratio, len(train_keys), neg_ratio_of_train, full_size), 'w') as f:
+with open('train_neg_{}-({})-{}-{}.csv'.format(train_ratio, len(train_keys), len(train), neg_ratio_of_train), 'w') as f:
     for i in train:
         f.write('{}\n'.format(i))
 

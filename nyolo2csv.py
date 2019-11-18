@@ -110,8 +110,9 @@ with open('pigeon_nikko.csv', 'w') as f_pigeon:
 
 print('NEG')
 bg_list = []
-for i in glob.glob('data/img/neg*'):
-    bg_list += [','.join(map(str, [i,'','','','','']))]
+for i in glob.glob('data/newnegs/*/*'):
+    if not ("pigoen" in i or "Pigeon" in i):
+        bg_list += [','.join(map(str, [i,'','','','','']))]
 
 print(len(bg_list))
 random.shuffle(bg_list)
@@ -146,7 +147,7 @@ for i in test_keys:
 # for i in test:
 #     print(i)
 
-neg_ratio_of_train = len(test_keys)
+neg_ratio_of_train = len(tests)
 print(neg_ratio_of_train)
 print('train:{}\ntest:{}\nneg:{}'.format(len(train), len(tests), neg_ratio_of_train))
 
@@ -167,9 +168,13 @@ with open('test-nikko_{}-{}.csv'.format(train_ratio, len(test_keys)), 'w') as f:
 
 train_neg = train + bg_list[:neg_ratio_of_train]
 random.shuffle(train_neg)
-
+print("train-neg:".format(len(train_neg)))
 with open('train-nikko_neg_{}-{}-{}-{}.csv'.format(train_ratio, len(train_keys), neg_ratio_of_train, full_size), 'w') as f:
     for i in train_neg:
         f.write('{}\n'.format(i))
         # f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))
 
+with open('neg.csv'.format(train_ratio, len(train_keys), len(train), neg_ratio_of_train), 'w') as f:
+    for i in bg_list[:neg_ratio_of_train]:
+        f.write('{}\n'.format(i))
+        # f.write('"{}",{},{},{},{},"{}"\n'.format(to_path(i[0]), i[1], i[2], i[3], i[4], i[5]))

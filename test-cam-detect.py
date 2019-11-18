@@ -413,7 +413,7 @@ def test_c_Resnet101(base_dir, es):
 def demo():
     model_is='c_resnet50'
     model = Model(model_is=model_is)
-    img = cv2.VideoCapture(1)
+    img = cv2.VideoCapture(0)
     while 1:
         _, frame = img.read()
         if _:

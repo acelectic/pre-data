@@ -2,7 +2,7 @@ ntrains = []
 with open('train_neg_0.85-855-151-1006.csv', 'r') as f:
     ntrains += f.readlines()
 print(len(ntrains))
-with open('train-nikko_neg_0.85-277-50-327.csv', 'r') as f:
+with open('train-nikko_neg_0.85-277-397-327.csv', 'r') as f:
     ntrains += f.readlines()   
 
 print(len(ntrains))
